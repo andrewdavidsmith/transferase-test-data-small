@@ -28,25 +28,6 @@ set -o errexit -o pipefail -o noclobber -o nounset
 
 DATADIR=$1
 
-if [ ! -d "${DATADIR}/xsym_mm39" ] || \
-       [ ! -d "${DATADIR}/xsym_hg38" ] || \
-       [ ! -d "${DATADIR}/intervals" ] || \
-       [ ! -d "${DATADIR}/methylomes" ] || \
-       [ ! -d "${DATADIR}/indexes" ]; then
-    echo "Error: could not find required directory"
-    exit 1
-fi
-
-if [ ! -f "${DATADIR}/methylomes_hg38.txt" ] || \
-       [ ! -f "${DATADIR}/methylomes_mm39.txt" ] || \
-       [ ! -f "${DATADIR}/hg38.fa.gz" ] || \
-       [ ! -f "${DATADIR}/mm39.fa.gz" ] || \
-       [ ! -f "${DATADIR}/intervals_hg38.txt" ] || \
-       [ ! -f "${DATADIR}/intervals_mm39.txt" ]; then
-    echo "Error: could not find a required file"
-    exit 1
-fi
-
 make_index() {
     species=$1
     xfr index \
@@ -80,6 +61,31 @@ run_queries() {
     done < "${DATADIR}/intervals_${species}.txt"
 }
 
+# Check that required directories from the repo exist
+if [ ! -d "${DATADIR}/xsym_mm39" ] || \
+       [ ! -d "${DATADIR}/xsym_hg38" ] || \
+       [ ! -d "${DATADIR}/intervals" ]; then
+    echo "Error: could not find required directory"
+    exit 1
+fi
+
+# Check that required files from the repo exist
+if [ ! -f "${DATADIR}/methylomes_hg38.txt" ] || \
+       [ ! -f "${DATADIR}/methylomes_mm39.txt" ] || \
+       [ ! -f "${DATADIR}/hg38.fa.gz" ] || \
+       [ ! -f "${DATADIR}/mm39.fa.gz" ] || \
+       [ ! -f "${DATADIR}/intervals_hg38.txt" ] || \
+       [ ! -f "${DATADIR}/intervals_mm39.txt" ]; then
+    echo "Error: could not find a required file"
+    exit 1
+fi
+
+# Make the directory for genome indexes
+if [ ! -d "${DATADIR}/indexes" ]; then
+    mkdir "${DATADIR}/indexes"
+fi
+
+# Generate the genome indexes
 for species in hg38 mm39; do
     time {
         make_index $species;
@@ -87,6 +93,12 @@ for species in hg38 mm39; do
     }
 done
 
+# Make the directory for methylomes
+if [ ! -d "${DATADIR}/methylomes" ]; then
+    mkdir "${DATADIR}/methylomes"
+fi
+
+# Generate the methylomes
 for species in hg38 mm39; do
     time {
         format_methylomes $species;
@@ -94,6 +106,12 @@ for species in hg38 mm39; do
     }
 done
 
+# Make the output directory for queries
+if [ ! -d "${DATADIR}/output" ]; then
+    mkdir "${DATADIR}/output"
+fi
+
+# Run all the queries
 for species in hg38 mm39; do
     time {
         run_queries $species;
@@ -101,5 +119,10 @@ for species in hg38 mm39; do
     }
 done
 
+# Run the concistency check
 xfr check -x "${DATADIR}/indexes" -d "${DATADIR}/methylomes" \
     --log-level critical
+
+# Check all the hashes; this currently has an issue with relative
+# paths
+sha256sum --quiet -c "${DATADIR}/output"

@@ -1,0 +1,10 @@
+chroms_together_and_sorted_hg38.bed
+SRX11326452_hmr.bed
+SRX14368547_hmr.bed
+SRX2395716_hmr.bed
+SRX26114887_hmr.bed
+SRX3688985_hmr.bed
+SRX528322_hmr.bed
+SRX5846314_hmr.bed
+SRX6978181_hmr.bed
+SRX9239529_hmr.bed

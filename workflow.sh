@@ -127,4 +127,4 @@ xfr check -x "${DATADIR}/indexes" -d "${DATADIR}/methylomes" \
 
 # Check all the hashes; this currently has an issue with relative
 # paths
-sha256sum --quiet -c "${DATADIR}/output"
+sha256sum --quiet -c "${DATADIR}/sha256sum.txt"

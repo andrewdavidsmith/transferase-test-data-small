@@ -62,6 +62,8 @@ run_queries() {
 }
 
 # Check that required directories from the repo exist
+echo "${DATADIR}"
+echo $(pwd)
 if [ ! -d "${DATADIR}/xsym_mm39" ] || \
        [ ! -d "${DATADIR}/xsym_hg38" ] || \
        [ ! -d "${DATADIR}/intervals" ]; then

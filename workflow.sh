@@ -53,7 +53,7 @@ run_queries() {
         xfr query --local -g "${species}" \
             -x "${DATADIR}/indexes" \
             -d "${DATADIR}/methylomes" \
-            -M "methylomes_${species}.txt" \
+            -m "methylomes_${species}.txt" \
             -o "output/${outfile}" \
             -i "intervals/${intervals}" \
             --out-fmt dfscores \

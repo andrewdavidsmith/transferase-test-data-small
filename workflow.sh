@@ -33,31 +33,31 @@ make_index() {
     xfr index \
         --genome "${DATADIR}/${species}.fa.gz" \
         --index-dir "${DATADIR}/indexes" \
-        --log-level critical
+        --log-level error
 }
 
 format_methylomes() {
     species=$1
-    while read -r methylome; do
+    while read -r methylome_name; do
         xfr format -g "${species}" \
-            -x indexes -d methylomes \
-            -m "${DATADIR}/xsym_${species}/${methylome}.xsym.gz" \
-            --log-level critical
+            -x "${DATADIR}/indexes" -d "${DATADIR}/methylomes" \
+            -m "${DATADIR}/xsym_${species}/${methylome_name}.xsym.gz" \
+            --log-level error
     done < "${DATADIR}/methylomes_${species}.txt"
 }
 
 run_queries() {
     species=$1
-    while read -r intervals; do
-        outfile=$(basename "${intervals}" '.bed').txt
+    while read -r intervals_file; do
+        outfile=$(basename "${intervals_file}" '.bed').txt
         xfr query --local -g "${species}" \
             -x "${DATADIR}/indexes" \
             -d "${DATADIR}/methylomes" \
-            -m "methylomes_${species}.txt" \
-            -o "output/${outfile}" \
-            -i "intervals/${intervals}" \
+            -m "${DATADIR}/methylomes_${species}.txt" \
+            -o "${DATADIR}/output/${outfile}" \
+            -i "${DATADIR}/intervals/${intervals_file}" \
             --out-fmt dfscores \
-            --log-level critical
+            --log-level error
     done < "${DATADIR}/intervals_${species}.txt"
 }
 
@@ -121,8 +121,23 @@ done
 
 # Run the concistency check
 xfr check -x "${DATADIR}/indexes" -d "${DATADIR}/methylomes" \
-    --log-level critical
+    --log-level error
 
 # Check all the hashes; this currently has an issue with relative
 # paths
 sha256sum --quiet -c "${DATADIR}/sha256sum.txt"
+
+# Now try a config and a remote query
+time {
+    xfr config --genomes hg38 --quiet
+    TIMEFORMAT="config: %3R";
+}
+
+time {
+    xfr query \
+        -g hg38 -m SRX096522 \
+        -i "${DATADIR}/intervals/cpgIslandExtUnmasked_hg38.bed3" \
+        -o results.bed \
+        --log-level error
+    TIMEFORMAT="remote_query: %3R";
+}

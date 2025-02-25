@@ -88,8 +88,8 @@ fi
 # Generate the genome indexes
 for species in hg38 mm39; do
     time {
-        make_index $species;
-        TIMEFORMAT="make_index $species %3R";
+        make_index "${species}";
+        TIMEFORMAT="make_index ${species} %3R";
     }
 done
 
@@ -101,8 +101,8 @@ fi
 # Generate the methylomes
 for species in hg38 mm39; do
     time {
-        format_methylomes $species;
-        TIMEFORMAT="format_methylomes $species %3R";
+        format_methylomes "${species}";
+        TIMEFORMAT="format_methylomes ${species} %3R";
     }
 done
 
@@ -114,8 +114,8 @@ fi
 # Run all the queries
 for species in hg38 mm39; do
     time {
-        run_queries $species;
-        TIMEFORMAT="run_queries $species %3R";
+        run_queries "${species}";
+        TIMEFORMAT="run_queries ${species} %3R";
     }
 done
 

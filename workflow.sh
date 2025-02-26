@@ -56,6 +56,7 @@ run_queries() {
             -m "${DATADIR}/methylomes_${species}.txt" \
             -o "${DATADIR}/output/${outfile}" \
             -i "${DATADIR}/intervals/${intervals_file}" \
+	    -r 1 \
             --out-fmt dfscores \
             --log-level error
     done < "${DATADIR}/intervals_${species}.txt"

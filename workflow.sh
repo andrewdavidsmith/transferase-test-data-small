@@ -49,7 +49,7 @@ format_methylomes() {
 run_local_queries() {
     species=$1
     while read -r intervals_file; do
-        outfile=$(basename "${intervals_file}" '.bed').txt
+        outfile=$(basename "${intervals_file}" '.bed')_local.txt
         xfr query --local -g "${species}" \
             -x "${DATADIR}/indexes" \
             -d "${DATADIR}/methylomes" \
@@ -65,7 +65,7 @@ run_local_queries() {
 run_remote_queries() {
     species=$1
     while read -r intervals_file; do
-        outfile=$(basename "${intervals_file}" '.bed').txt
+        outfile=$(basename "${intervals_file}" '.bed')_remote.txt
         while read -r methylome_name; do
             xfr query -g "${species}" \
                 -m "${methylome_name}" \
@@ -138,10 +138,6 @@ done
 xfr check -x "${DATADIR}/indexes" -d "${DATADIR}/methylomes" \
     --log-level error
 
-# Check all the hashes; this currently has an issue with relative
-# paths
-sha256sum --quiet -c "${DATADIR}/sha256sum.txt"
-
 # Now try a config and a remote query
 time {
     xfr config --genomes hg38,mm39 --quiet
@@ -154,3 +150,7 @@ for species in hg38 mm39; do
         TIMEFORMAT="run_remote_query: %3R";
     }
 done
+
+# Check all the hashes; this currently has an issue with relative
+# paths
+sha256sum --quiet -c "${DATADIR}/sha256sum.txt"

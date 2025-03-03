@@ -46,7 +46,7 @@ format_methylomes() {
     done < "${DATADIR}/methylomes_${species}.txt"
 }
 
-run_queries() {
+run_local_queries() {
     species=$1
     while read -r intervals_file; do
         outfile=$(basename "${intervals_file}" '.bed').txt
@@ -56,9 +56,23 @@ run_queries() {
             -m "${DATADIR}/methylomes_${species}.txt" \
             -o "${DATADIR}/output/${outfile}" \
             -i "${DATADIR}/intervals/${intervals_file}" \
-	    -r 1 \
+            -r 1 \
             --out-fmt dfscores \
             --log-level error
+    done < "${DATADIR}/intervals_${species}.txt"
+}
+
+run_remote_queries() {
+    species=$1
+    while read -r intervals_file; do
+        outfile=$(basename "${intervals_file}" '.bed').txt
+        while read -r methylome_name; do
+            xfr query -g "${species}" \
+                -m "${methylome_name}" \
+                -o "${DATADIR}/output/${outfile}" \
+                -i "${DATADIR}/intervals/${intervals_file}" \
+                --log-level error
+        done < "${DATADIR}/methylomes_${species}.txt"
     done < "${DATADIR}/intervals_${species}.txt"
 }
 
@@ -115,8 +129,8 @@ fi
 # Run all the queries
 for species in hg38 mm39; do
     time {
-        run_queries "${species}";
-        TIMEFORMAT="run_queries ${species} %3R";
+        run_local_queries "${species}";
+        TIMEFORMAT="run_local_queries ${species} %3R";
     }
 done
 
@@ -130,15 +144,13 @@ sha256sum --quiet -c "${DATADIR}/sha256sum.txt"
 
 # Now try a config and a remote query
 time {
-    xfr config --genomes hg38 --quiet
+    xfr config --genomes hg38,mm39 --quiet
     TIMEFORMAT="config: %3R";
 }
 
-time {
-    xfr query \
-        -g hg38 -m SRX096522 \
-        -i "${DATADIR}/intervals/cpgIslandExtUnmasked_hg38.bed3" \
-        -o results.bed \
-        --log-level error
-    TIMEFORMAT="remote_query: %3R";
-}
+for species in hg38 mm39; do
+    time {
+        run_remote_queries "${species}";
+        TIMEFORMAT="run_remote_query: %3R";
+    }
+done

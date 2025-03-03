@@ -7,5 +7,5 @@ RUN apt-get update && \
 RUN git clone https://github.com/andrewdavidsmith/transferase-test-data-small.git $(pwd)
 
 # Put it into an image that can build and run transferase
-FROM andrewdavidsmith/gcc-cmake-boost:latest
+FROM andrewdavidsmith/transferase-build:latest
 COPY --from=transferase-test-data-builder /data/ /data/

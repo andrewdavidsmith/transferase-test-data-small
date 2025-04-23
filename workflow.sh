@@ -57,8 +57,8 @@ run_local_queries() {
             -o "${DATADIR}/output/${outfile}" \
             -i "${DATADIR}/intervals/${intervals_file}" \
             -r 1 \
-            --out-fmt dfscores \
-            --log-level error
+            --scores \
+            --quiet
     done < "${DATADIR}/intervals_${species}.txt"
 }
 
@@ -71,7 +71,8 @@ run_remote_queries() {
                 -m "${methylome_name}" \
                 -o "${DATADIR}/output/${outfile}" \
                 -i "${DATADIR}/intervals/${intervals_file}" \
-                --log-level error
+		--bed \
+                --quiet
         done < "${DATADIR}/methylomes_${species}.txt"
     done < "${DATADIR}/intervals_${species}.txt"
 }

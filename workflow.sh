@@ -141,7 +141,7 @@ xfr check -x "${DATADIR}/indexes" -d "${DATADIR}/methylomes" \
 
 # Now try a config and a remote query
 time {
-    xfr config --genomes hg38,mm39 --debug --progress
+    xfr config --genomes hg38,mm39 --debug
     TIMEFORMAT="config: %3R";
 }
 

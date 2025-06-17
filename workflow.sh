@@ -65,16 +65,29 @@ run_local_queries() {
 run_remote_queries() {
     species=$1
     while read -r intervals_file; do
-        outfile=$(basename "${intervals_file}" '.bed')_remote.txt
         while read -r methylome_name; do
+            outfile=$(basename "${intervals_file}" '.bed')_"${methylome_name}"_remote.txt
             xfr query -g "${species}" \
                 -m "${methylome_name}" \
                 -o "${DATADIR}/output/${outfile}" \
                 -i "${DATADIR}/intervals/${intervals_file}" \
-		--bed \
+                --bed \
                 --quiet
         done < "${DATADIR}/methylomes_${species}.txt"
     done < "${DATADIR}/intervals_${species}.txt"
+}
+
+run_remote_bins_queries() {
+    species=$1
+    while read -r methylome_name; do
+        outfile="${methylome_name}"_bins_remote.txt
+        xfr query -g "${species}" \
+            -m "${methylome_name}" \
+            -o "${DATADIR}/output/${outfile}" \
+            -b 10000 \
+            --bed \
+            --quiet
+    done < "${DATADIR}/methylomes_${species}.txt"
 }
 
 # Check that required directories from the repo exist
@@ -149,6 +162,13 @@ for species in hg38 mm39; do
     time {
         run_remote_queries "${species}";
         TIMEFORMAT="run_remote_query: %3R";
+    }
+done
+
+for species in hg38 mm39; do
+    time {
+        run_remote_bins_queries "${species}";
+        TIMEFORMAT="run_remote_bins_queries: %3R";
     }
 done
 

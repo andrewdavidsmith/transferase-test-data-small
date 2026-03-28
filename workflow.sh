@@ -58,7 +58,7 @@ run_local_queries() {
             -i "${DATADIR}/intervals/${intervals_file}" \
             -r 1 \
             --scores \
-            --quiet
+            --verbose
     done < "${DATADIR}/intervals_${species}.txt"
 }
 
@@ -67,12 +67,12 @@ run_remote_queries() {
     while read -r intervals_file; do
         while read -r methylome_name; do
             outfile=$(basename "${intervals_file}" '.bed')_"${methylome_name}"_remote.txt
-            xfr query -v -g "${species}" \
+            xfr query -g "${species}" \
                 -m "${methylome_name}" \
                 -o "${DATADIR}/output/${outfile}" \
                 -i "${DATADIR}/intervals/${intervals_file}" \
                 --bed \
-                --quiet
+                --verbose
         done < "${DATADIR}/methylomes_${species}.txt"
     done < "${DATADIR}/intervals_${species}.txt"
 }
@@ -86,7 +86,7 @@ run_remote_bins_queries() {
             -o "${DATADIR}/output/${outfile}" \
             -b 10000 \
             --bed \
-            --quiet
+            --verbose
     done < "${DATADIR}/methylomes_${species}.txt"
 }
 

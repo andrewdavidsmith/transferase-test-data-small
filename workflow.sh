@@ -67,7 +67,7 @@ run_remote_queries() {
     while read -r intervals_file; do
         while read -r methylome_name; do
             outfile=$(basename "${intervals_file}" '.bed')_"${methylome_name}"_remote.txt
-            xfr query -g "${species}" \
+            xfr query -v -g "${species}" \
                 -m "${methylome_name}" \
                 -o "${DATADIR}/output/${outfile}" \
                 -i "${DATADIR}/intervals/${intervals_file}" \
